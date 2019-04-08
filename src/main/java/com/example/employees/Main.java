@@ -56,12 +56,14 @@ public class Main {
 
         tomcat.setConnector(tomcat.getConnector());
 
+        //tomcat.getHost().setConfigClass(NoJSPServletContextConfig.class.getName())
+        tomcat.setAddDefaultWebXmlToWebapp(false);
+
         String contextPath = "";
         String docBase = new File(".").getCanonicalPath();
 
 //        Context context = tomcat.addContext(contextPath, docBase);
         Context context = tomcat.addWebapp(contextPath, docBase);
-        context.setJspConfigDescriptor(null);
 
         //((StandardJarScanner) context.getJarScanner()).setScanAllFiles(true);
         //((StandardJarScanner) context.getJarScanner()).setScanBootstrapClassPath(true);
