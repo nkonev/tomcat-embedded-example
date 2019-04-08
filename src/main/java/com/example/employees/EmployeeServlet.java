@@ -12,8 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @WebServlet(
-        name = "EmployeeServlet",
-        urlPatterns = {"/employee"}
+        "/path"
 )
 public class EmployeeServlet extends HttpServlet {
     EmployeeService employeeService = new EmployeeService();

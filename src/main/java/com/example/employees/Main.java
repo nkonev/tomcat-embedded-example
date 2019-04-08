@@ -8,6 +8,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.coyote.http11.Http11Nio2Protocol;
+import org.apache.tomcat.util.scan.StandardJarScanner;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -58,8 +59,12 @@ public class Main {
         String contextPath = "";
         String docBase = new File(".").getCanonicalPath();
 
-        Context context = tomcat.addContext(contextPath, docBase);
-        //Context context = tomcat.addWebapp(contextPath, docBase);
+//        Context context = tomcat.addContext(contextPath, docBase);
+        Context context = tomcat.addWebapp(contextPath, docBase);
+
+        //((StandardJarScanner) context.getJarScanner()).setScanAllFiles(true);
+        //((StandardJarScanner) context.getJarScanner()).setScanBootstrapClassPath(true);
+
 
 
         HttpServlet servlet = new HttpServlet() {
@@ -91,14 +96,16 @@ public class Main {
         resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
                 additionWebInfClasses.getAbsolutePath(), "/"));
         context.setResources(resources);*/
+
+
         // Additions to make @WebServlet work
-        /*String buildPath = "target/classes";
+        String buildPath = "target/classes";
         String webAppMount = "/WEB-INF/classes";
 
         File additionalWebInfClasses = new File(buildPath);
         WebResourceRoot resources = new StandardRoot(context);
-        resources.addPreResources(new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), contextPath));
-        context.setResources(resources);*/
+        resources.addPreResources(new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), "/"));
+        context.setResources(resources);
         // End of additions
 
 
