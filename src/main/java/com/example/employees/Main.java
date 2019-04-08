@@ -21,42 +21,16 @@ import java.io.PrintWriter;
 import java.util.Optional;
 
 public class Main {
-    public static final Optional<String> port = Optional.ofNullable(System.getenv("PORT"));
+    public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
 
     public static void main(String[] args) throws Exception {
-        /*String webappDirLocation = "src/main/webapp/";
-        Tomcat tomcat = new Tomcat();
-
-        //The port that we should run on can be set into an environment variable
-        //Look for that variable and default to 8080 if it isn't there.
-        String webPort = System.getenv("PORT");
-        if(webPort == null || webPort.isEmpty()) {
-            webPort = "8080";
-        }
-
-        tomcat.setPort(Integer.valueOf(webPort));
-
-        StandardContext ctx = (StandardContext) tomcat.addWebapp("/", new File(webappDirLocation).getAbsolutePath());
-        System.out.println("configuring app with basedir: " + new File("./" + webappDirLocation).getAbsolutePath());
-
-        // Declare an alternative location for your "WEB-INF/classes" dir
-        // Servlet 3.0 annotation will work
-        File additionWebInfClasses = new File("target/classes");
-        WebResourceRoot resources = new StandardRoot(ctx);
-        resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
-                additionWebInfClasses.getAbsolutePath(), "/"));
-        ctx.setResources(resources);
-
-        tomcat.start();
-        tomcat.getServer().await();*/
 
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir("temp");
-        tomcat.setPort(8080);
+        tomcat.setPort(PORT);
 
         tomcat.setConnector(tomcat.getConnector());
 
-        //tomcat.getHost().setConfigClass(NoJSPServletContextConfig.class.getName())
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = "";
@@ -64,10 +38,6 @@ public class Main {
 
 //        Context context = tomcat.addContext(contextPath, docBase);
         Context context = tomcat.addWebapp(contextPath, docBase);
-
-        //((StandardJarScanner) context.getJarScanner()).setScanAllFiles(true);
-        //((StandardJarScanner) context.getJarScanner()).setScanBootstrapClassPath(true);
-
 
 
         HttpServlet servlet = new HttpServlet() {
@@ -81,27 +51,13 @@ public class Main {
                 writer.println("</body></html>");
             }
         };
-
         String servletName = "Servlet1";
         String urlPattern = "/go";
-
         tomcat.addServlet(contextPath, servletName, servlet);
         context.addServletMappingDecoded(urlPattern, servletName);
 
 
-        // Declare an alternative location for your "WEB-INF/classes" dir
-        // Servlet 3.0 annotation will work
-        /*File additionWebInfClasses = new File("target/classes");
-        if (!additionWebInfClasses.exists()){
-            throw new FileNotFoundException(additionWebInfClasses.getAbsolutePath() + " not found");
-        }
-        WebResourceRoot resources = new StandardRoot(context);
-        resources.addPreResources(new DirResourceSet(resources, "/WEB-INF/classes",
-                additionWebInfClasses.getAbsolutePath(), "/"));
-        context.setResources(resources);*/
-
-
-        // Additions to make @WebServlet work
+        // Additions to make @WebServlet (Servlet 3.0 annotation) work
         String buildPath = "target/classes";
         String webAppMount = "/WEB-INF/classes";
 
