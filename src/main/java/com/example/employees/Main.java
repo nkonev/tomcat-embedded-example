@@ -36,9 +36,7 @@ public class Main {
         String contextPath = "";
         String docBase = new File(".").getCanonicalPath();
 
-//        Context context = tomcat.addContext(contextPath, docBase);
         Context context = tomcat.addWebapp(contextPath, docBase);
-
 
         HttpServlet servlet = new HttpServlet() {
             @Override
