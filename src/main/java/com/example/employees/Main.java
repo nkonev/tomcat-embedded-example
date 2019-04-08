@@ -61,6 +61,7 @@ public class Main {
 
 //        Context context = tomcat.addContext(contextPath, docBase);
         Context context = tomcat.addWebapp(contextPath, docBase);
+        context.setJspConfigDescriptor(null);
 
         //((StandardJarScanner) context.getJarScanner()).setScanAllFiles(true);
         //((StandardJarScanner) context.getJarScanner()).setScanBootstrapClassPath(true);

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,22 +19,15 @@ public class EmployeeServlet extends HttpServlet {
     EmployeeService employeeService = new EmployeeService();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("searchAction");
-        if (action!=null){
-            switch (action) {
-                case "searchById":
-                    searchEmployeeById(req, resp);
-                    break;
-                case "searchByName":
-                    searchEmployeeByName(req, resp);
-                    break;
-            }
-        }else{
-            List<Employee> result = employeeService.getAllEmployees();
-            forwardListEmployees(req, resp, result);
-        }
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+
+        writer.println("<html><title>EMPLOYEES</title><body>");
+        writer.println("<h1>Employees works!</h1>");
+        writer.println("</body></html>");
     }
+
 
     private void searchEmployeeById(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
