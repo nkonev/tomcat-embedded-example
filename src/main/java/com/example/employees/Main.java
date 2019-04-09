@@ -67,6 +67,7 @@ public class Main {
         staticContext.addChild(defaultServlet);
         staticContext.addServletMappingDecoded("/", defaultServletName);
 
+
         // Additions to make @WebServlet (Servlet 3.0 annotation) work
         String webAppMount = "/WEB-INF/classes";
         WebResourceRoot resources = new StandardRoot(context);
