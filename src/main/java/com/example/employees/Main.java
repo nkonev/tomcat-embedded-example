@@ -29,7 +29,7 @@ public class Main {
         tomcat.setPort(PORT);
 
         tomcat.setConnector(tomcat.getConnector());
-
+        // prevent register jsp servlet
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = "";
