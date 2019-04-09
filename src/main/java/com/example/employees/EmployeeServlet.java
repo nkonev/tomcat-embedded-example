@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @WebServlet(
-        "/path"
+        "/employee"
 )
 public class EmployeeServlet extends HttpServlet {
 
