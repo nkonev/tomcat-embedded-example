@@ -3,6 +3,8 @@ package com.example.employees;
 import org.apache.catalina.Context;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceSet;
+import org.apache.catalina.Wrapper;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.JarResourceSet;
@@ -33,7 +35,7 @@ public class Main {
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = "";
-        String docBase = new File(".").getCanonicalPath();
+        String docBase = new File("/home/nkonev/javaWorkspace/employees-app/src/main/webapp").getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
 
 
@@ -53,6 +55,17 @@ public class Main {
         tomcat.addServlet(contextPath, servletName, servlet);
         context.addServletMappingDecoded(urlPattern, servletName);
 
+
+        final String defaultServletName = "default";
+        Context staticContext = context;
+        Wrapper defaultServlet = staticContext.createWrapper();
+        defaultServlet.setName(defaultServletName);
+        defaultServlet.setServletClass("org.apache.catalina.servlets.DefaultServlet");
+        defaultServlet.addInitParameter("debug", "0");
+        defaultServlet.addInitParameter("listings", "false");
+        defaultServlet.setLoadOnStartup(1);
+        staticContext.addChild(defaultServlet);
+        staticContext.addServletMappingDecoded("/", defaultServletName);
 
         // Additions to make @WebServlet (Servlet 3.0 annotation) work
         String webAppMount = "/WEB-INF/classes";
