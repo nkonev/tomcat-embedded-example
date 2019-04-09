@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Optional;
 
 public class Main {
@@ -53,12 +54,12 @@ public class Main {
 
 
         // Additions to make @WebServlet (Servlet 3.0 annotation) work
-        String buildPath = "target/classes";
         String webAppMount = "/WEB-INF/classes";
 
-
         WebResourceRoot resources = new StandardRoot(context);
-        File additionalWebInfClasses = new File(buildPath);
+        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String decodedPath = URLDecoder.decode(path, "UTF-8");
+        File additionalWebInfClasses = new File(decodedPath);
         WebResourceSet webResourceSet;
         if (additionalWebInfClasses.exists()) {
             webResourceSet = new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), "/");
