@@ -2,8 +2,10 @@ package com.example.employees;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.WebResourceRoot;
+import org.apache.catalina.WebResourceSet;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
+import org.apache.catalina.webresources.JarResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Optional;
 
 public class Main {
@@ -53,9 +56,18 @@ public class Main {
         String buildPath = "target/classes";
         String webAppMount = "/WEB-INF/classes";
 
-        File additionalWebInfClasses = new File(buildPath);
+
         WebResourceRoot resources = new StandardRoot(context);
-        resources.addPreResources(new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), "/"));
+        File additionalWebInfClasses = new File(buildPath);
+        WebResourceSet webResourceSet;
+        if (additionalWebInfClasses.exists()) {
+            webResourceSet = new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), "/");
+        } else {
+            File jarFile = new File(System.getProperty("java.class.path"));
+            System.out.println(jarFile.getAbsolutePath());
+            webResourceSet = new JarResourceSet(resources, webAppMount, jarFile.getAbsolutePath(), "/");
+        }
+        resources.addPreResources(webResourceSet);
         context.setResources(resources);
         // End of additions
 
