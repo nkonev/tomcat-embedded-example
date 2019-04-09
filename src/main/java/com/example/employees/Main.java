@@ -34,8 +34,8 @@ public class Main {
 
         String contextPath = "";
         String docBase = new File(".").getCanonicalPath();
-
         Context context = tomcat.addWebapp(contextPath, docBase);
+
 
         HttpServlet servlet = new HttpServlet() {
             @Override
@@ -56,7 +56,6 @@ public class Main {
 
         // Additions to make @WebServlet (Servlet 3.0 annotation) work
         String webAppMount = "/WEB-INF/classes";
-
         WebResourceRoot resources = new StandardRoot(context);
         Resource resource = getAbsoluteResourcePath();
         WebResourceSet webResourceSet;
