@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         Tomcat tomcat = new Tomcat();
-        tomcat.setBaseDir("temp");
+        tomcat.setBaseDir("tomcat-temp");
         tomcat.setPort(PORT);
 
         tomcat.setConnector(tomcat.getConnector());
