@@ -92,10 +92,8 @@ public class Main {
     }
 
     public static Resource getAbsoluteResourcePath() throws UnsupportedEncodingException {
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String decodedPath = URLDecoder.decode(path, "UTF-8");
-        File additionalWebInfClasses = new File(decodedPath);
-
+        String buildPath = "target/classes";
+        File additionalWebInfClasses = new File(buildPath);
         if (additionalWebInfClasses.exists()) {
             return new Resource(false, additionalWebInfClasses.getAbsolutePath());
         } else {
