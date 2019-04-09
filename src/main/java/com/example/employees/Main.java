@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Optional;
@@ -57,16 +58,12 @@ public class Main {
         String webAppMount = "/WEB-INF/classes";
 
         WebResourceRoot resources = new StandardRoot(context);
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String decodedPath = URLDecoder.decode(path, "UTF-8");
-        File additionalWebInfClasses = new File(decodedPath);
+        Resource resource = getAbsoluteResourcePath();
         WebResourceSet webResourceSet;
-        if (additionalWebInfClasses.exists()) {
-            webResourceSet = new DirResourceSet(resources, webAppMount, additionalWebInfClasses.getAbsolutePath(), "/");
+        if (!resource.isJar()) {
+            webResourceSet = new DirResourceSet(resources, webAppMount, resource.getAbsolutePath(), "/");
         } else {
-            File jarFile = new File(System.getProperty("java.class.path"));
-            System.out.println(jarFile.getAbsolutePath());
-            webResourceSet = new JarResourceSet(resources, webAppMount, jarFile.getAbsolutePath(), "/");
+            webResourceSet = new JarResourceSet(resources, webAppMount, resource.getAbsolutePath(), "/");
         }
         resources.addPreResources(webResourceSet);
         context.setResources(resources);
@@ -75,5 +72,37 @@ public class Main {
 
         tomcat.start();
         tomcat.getServer().await();
+    }
+
+    public static class Resource {
+        private boolean jar;
+        private String absolutePath;
+
+        public Resource(boolean jar, String absolutePath) {
+            this.jar = jar;
+            this.absolutePath = absolutePath;
+        }
+
+        public boolean isJar() {
+            return jar;
+        }
+
+        public String getAbsolutePath() {
+            return absolutePath;
+        }
+    }
+
+    public static Resource getAbsoluteResourcePath() throws UnsupportedEncodingException {
+        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String decodedPath = URLDecoder.decode(path, "UTF-8");
+        File additionalWebInfClasses = new File(decodedPath);
+
+        if (additionalWebInfClasses.exists()) {
+            return new Resource(false, additionalWebInfClasses.getAbsolutePath());
+        } else {
+            File jarFile = new File(System.getProperty("java.class.path"));
+            System.out.println(jarFile.getAbsolutePath());
+            return new Resource(true, jarFile.getAbsolutePath());
+        }
     }
 }
