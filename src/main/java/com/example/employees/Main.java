@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Optional;
 
@@ -55,9 +54,8 @@ public class Main {
         tomcat.addServlet(contextPath, servletName, servlet);
         context.addServletMappingDecoded(urlPattern, servletName);
 
-
-        final String defaultServletName = "default";
         Context staticContext = context;
+        final String defaultServletName = "default";
         Wrapper defaultServlet = staticContext.createWrapper();
         defaultServlet.setName(defaultServletName);
         defaultServlet.setServletClass("org.apache.catalina.servlets.DefaultServlet");
@@ -67,52 +65,57 @@ public class Main {
         staticContext.addChild(defaultServlet);
         staticContext.addServletMappingDecoded("/", defaultServletName);
 
-
-        // Additions to make @WebServlet (Servlet 3.0 annotation) work
-        String webAppMount = "/WEB-INF/classes";
-        WebResourceRoot resources = new StandardRoot(context);
-        Resource resource = getAbsoluteResourcePath();
-        WebResourceSet webResourceSet;
-        if (!resource.isJar()) {
-            webResourceSet = new DirResourceSet(resources, webAppMount, resource.getAbsolutePath(), "/");
-        } else {
-            webResourceSet = new JarResourceSet(resources, webAppMount, resource.getAbsolutePath(), "/");
+        // annotated classes
+        {
+            // Additions to make @WebServlet (Servlet 3.0 annotation) work
+            String webAppMount = "/WEB-INF/classes";
+            WebResourceRoot resources = new StandardRoot(context);
+            WebResourceSet webResourceSet;
+            if (!isJar()) {
+                webResourceSet = new DirResourceSet(resources, webAppMount, getResourceFromFs(), "/");
+            } else {
+                webResourceSet = new JarResourceSet(resources, webAppMount, getResourceFromJarFile(), "/");
+            }
+            resources.addPreResources(webResourceSet);
+            context.setResources(resources);
+            // End of additions
         }
-        resources.addPreResources(webResourceSet);
-        context.setResources(resources);
-        // End of additions
+
+
+        // static
+        {
+            // Additions to make @WebServlet (Servlet 3.0 annotation) work
+            String webAppMount = "/META-INF/resources";
+            WebResourceRoot resources = new StandardRoot(staticContext);
+            WebResourceSet webResourceSet;
+            if (!isJar()) {
+                webResourceSet = new DirResourceSet(resources, webAppMount, getResourceFromFs(), "/");
+            } else {
+                webResourceSet = new JarResourceSet(resources, webAppMount, getResourceFromJarFile(), "/");
+            }
+            resources.addPreResources(webResourceSet);
+            staticContext.setResources(resources);
+        }
 
 
         tomcat.start();
         tomcat.getServer().await();
     }
 
-    public static class Resource {
-        private boolean jar;
-        private String absolutePath;
 
-        public Resource(boolean jar, String absolutePath) {
-            this.jar = jar;
-            this.absolutePath = absolutePath;
-        }
-
-        public boolean isJar() {
-            return jar;
-        }
-
-        public String getAbsolutePath() {
-            return absolutePath;
-        }
-    }
-
-    public static Resource getAbsoluteResourcePath() throws UnsupportedEncodingException {
+    public static boolean isJar() {
         URL resource = Main.class.getResource("/");
-        if (resource!=null) {
-            return new Resource(false, resource.getFile());
-        } else {
-            File jarFile = new File(System.getProperty("java.class.path"));
-            System.out.println(jarFile.getAbsolutePath());
-            return new Resource(true, jarFile.getAbsolutePath());
-        }
+        return resource == null;
     }
+
+    public static String getResourceFromJarFile() {
+        File jarFile = new File(System.getProperty("java.class.path"));
+        return jarFile.getAbsolutePath();
+    }
+
+    public static String getResourceFromFs() {
+        URL resource = Main.class.getResource("/");
+        return resource.getFile();
+    }
+
 }
