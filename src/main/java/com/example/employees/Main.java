@@ -4,7 +4,6 @@ import org.apache.catalina.Context;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceSet;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.JarResourceSet;
@@ -18,11 +17,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Optional;
 
 public class Main {
     public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
+
+    public static final String DOCBASE = Optional.ofNullable(System.getenv("DOCBASE")).orElse(".");
 
     public static void main(String[] args) throws Exception {
 
@@ -35,7 +35,7 @@ public class Main {
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = "";
-        String docBase = new File("/home/nkonev/javaWorkspace/employees-app/src/main/webapp").getCanonicalPath();
+        String docBase = new File(DOCBASE).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
 
 
@@ -106,10 +106,9 @@ public class Main {
     }
 
     public static Resource getAbsoluteResourcePath() throws UnsupportedEncodingException {
-        String buildPath = "target/classes";
-        File additionalWebInfClasses = new File(buildPath);
-        if (additionalWebInfClasses.exists()) {
-            return new Resource(false, additionalWebInfClasses.getAbsolutePath());
+        URL resource = Main.class.getResource("/");
+        if (resource!=null) {
+            return new Resource(false, resource.getFile());
         } else {
             File jarFile = new File(System.getProperty("java.class.path"));
             System.out.println(jarFile.getAbsolutePath());
