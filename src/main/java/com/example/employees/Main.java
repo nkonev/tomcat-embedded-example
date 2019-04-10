@@ -88,7 +88,7 @@ public class Main {
             String webAppMount = "/META-INF/resources";
             WebResourceSet webResourceSet;
             if (!isJar()) {
-                // dangerous - if last argument will "/" that means tomcat will serves self jar with .class files. consider unpack jar (if jar) and set docbase in tomcat.addWebapp()
+                // potential dangerous - if last argument will "/" that means tomcat will serves self jar with .class files
                 webResourceSet = new DirResourceSet(webResourceRoot, "/", getResourceFromFs(), webAppMount);
             } else {
                 webResourceSet = new JarResourceSet(webResourceRoot, "/", getResourceFromJarFile(), webAppMount);
