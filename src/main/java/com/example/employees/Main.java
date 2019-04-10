@@ -21,7 +21,7 @@ import java.util.Optional;
 public class Main {
     public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
 
-    public static final String DOCBASE = Optional.ofNullable(System.getenv("DOCBASE")).orElse(".");
+    public static final String STATICDIR = Optional.ofNullable(System.getenv("STATICDIR")).orElse(".");
 
     public static void main(String[] args) throws Exception {
 
@@ -34,7 +34,7 @@ public class Main {
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = ""; // root context
-        String docBase = new File(DOCBASE).getCanonicalPath();
+        String docBase = new File(STATICDIR).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
 
         HttpServlet servlet = new HttpServlet() {
