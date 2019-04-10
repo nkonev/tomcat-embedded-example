@@ -21,12 +21,13 @@ import java.util.Optional;
 public class Main {
     public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
 
-    public static final String STATICDIR = Optional.ofNullable(System.getenv("STATICDIR")).orElse(".");
+    public static final String STATICDIR = Optional.ofNullable(System.getenv("STATICDIR")).orElse("/tmp/tomcat-static");
+    public static final String TMPDIR = Optional.ofNullable(System.getenv("TMPDIR")).orElse("/tmp/tomcat-tmp");
 
     public static void main(String[] args) throws Exception {
 
         Tomcat tomcat = new Tomcat();
-        tomcat.setBaseDir("tomcat-temp");
+        tomcat.setBaseDir(TMPDIR);
         tomcat.setPort(PORT);
 
         tomcat.setConnector(tomcat.getConnector());
@@ -34,6 +35,7 @@ public class Main {
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
         String contextPath = ""; // root context
+        new File(STATICDIR).mkdirs();
         String docBase = new File(STATICDIR).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
 
