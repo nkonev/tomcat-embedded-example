@@ -33,7 +33,7 @@ public class Main {
         // prevent register jsp servlet
         tomcat.setAddDefaultWebXmlToWebapp(false);
 
-        String contextPath = "";
+        String contextPath = ""; // root context
         String docBase = new File(DOCBASE).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
 
