@@ -54,30 +54,30 @@ public class Main {
         tomcat.addServlet(contextPath, servletName, servlet);
         context.addServletMappingDecoded(urlPattern, servletName);
 
-        Context staticContext = context;
+
         final String defaultServletName = "default";
-        Wrapper defaultServlet = staticContext.createWrapper();
+        Wrapper defaultServlet = context.createWrapper();
         defaultServlet.setName(defaultServletName);
         defaultServlet.setServletClass("org.apache.catalina.servlets.DefaultServlet");
         defaultServlet.addInitParameter("debug", "0");
         defaultServlet.addInitParameter("listings", "false");
         defaultServlet.setLoadOnStartup(1);
-        staticContext.addChild(defaultServlet);
-        staticContext.addServletMappingDecoded("/", defaultServletName);
+        context.addChild(defaultServlet);
+        context.addServletMappingDecoded("/", defaultServletName);
+
+        WebResourceRoot webResourceRoot = new StandardRoot(context);
 
         // annotated classes
         {
             // Additions to make @WebServlet (Servlet 3.0 annotation) work
             String webAppMount = "/WEB-INF/classes";
-            WebResourceRoot resources = new StandardRoot(context);
             WebResourceSet webResourceSet;
             if (!isJar()) {
-                webResourceSet = new DirResourceSet(resources, webAppMount, getResourceFromFs(), "/");
+                webResourceSet = new DirResourceSet(webResourceRoot, webAppMount, getResourceFromFs(), "/");
             } else {
-                webResourceSet = new JarResourceSet(resources, webAppMount, getResourceFromJarFile(), "/");
+                webResourceSet = new JarResourceSet(webResourceRoot, webAppMount, getResourceFromJarFile(), "/");
             }
-            resources.addPreResources(webResourceSet);
-            context.setResources(resources);
+            webResourceRoot.addJarResources(webResourceSet);
             // End of additions
         }
 
@@ -86,17 +86,16 @@ public class Main {
         {
             // Additions to make @WebServlet (Servlet 3.0 annotation) work
             String webAppMount = "/META-INF/resources";
-            WebResourceRoot resources = new StandardRoot(staticContext);
             WebResourceSet webResourceSet;
             if (!isJar()) {
-                webResourceSet = new DirResourceSet(resources, webAppMount, getResourceFromFs(), "/");
+                webResourceSet = new DirResourceSet(webResourceRoot, "/", getResourceFromFs(), webAppMount);
             } else {
-                webResourceSet = new JarResourceSet(resources, webAppMount, getResourceFromJarFile(), "/");
+                webResourceSet = new JarResourceSet(webResourceRoot, "/", getResourceFromJarFile(), webAppMount);
             }
-            resources.addPreResources(webResourceSet);
-            staticContext.setResources(resources);
+            webResourceRoot.addJarResources(webResourceSet);
         }
 
+        context.setResources(webResourceRoot);
 
         tomcat.start();
         tomcat.getServer().await();
