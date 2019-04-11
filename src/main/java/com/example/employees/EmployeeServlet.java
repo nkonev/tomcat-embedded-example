@@ -22,6 +22,4 @@ public class EmployeeServlet extends HttpServlet {
         writer.println("<h1>Employees works!</h1>");
         writer.println("</body></html>");
     }
-
-
 }
