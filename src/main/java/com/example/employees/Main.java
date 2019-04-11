@@ -4,6 +4,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.WebResourceSet;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.JarResourceSet;
@@ -38,6 +39,7 @@ public class Main {
         new File(STATICDIR).mkdirs();
         String docBase = new File(STATICDIR).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
+        ((StandardContext)context).setAddWebinfClassesResources(true); // process /META-INF/resources for static
 
         HttpServlet servlet = new HttpServlet() {
             @Override
@@ -58,18 +60,6 @@ public class Main {
 
         WebResourceRoot webResourceRoot = new StandardRoot(context);
 
-        // Additions to make @WebServlet (Servlet 3.0 annotation) work
-        {
-            String webAppMount = "/WEB-INF/classes";
-            WebResourceSet webResourceSet;
-            if (!isJar()) {
-                webResourceSet = new DirResourceSet(webResourceRoot, webAppMount, getResourceFromFs(), "/");
-            } else {
-                webResourceSet = new JarResourceSet(webResourceRoot, webAppMount, getResourceFromJarFile(), "/");
-            }
-            webResourceRoot.addJarResources(webResourceSet);
-        }
-
 
         // Additions to make serving static work
         final String defaultServletName = "default";
@@ -81,14 +71,16 @@ public class Main {
         defaultServlet.setLoadOnStartup(1);
         context.addChild(defaultServlet);
         context.addServletMappingDecoded("/", defaultServletName);
+
+        // add self jar with static and annotated servlets
         {
-            String webAppMount = "/META-INF/resources";
+            String webAppMount = "/WEB-INF/classes";
             WebResourceSet webResourceSet;
             if (!isJar()) {
                 // potential dangerous - if last argument will "/" that means tomcat will serves self jar with .class files
-                webResourceSet = new DirResourceSet(webResourceRoot, "/", getResourceFromFs(), webAppMount);
+                webResourceSet = new DirResourceSet(webResourceRoot, webAppMount, getResourceFromFs(), "/");
             } else {
-                webResourceSet = new JarResourceSet(webResourceRoot, "/", getResourceFromJarFile(), webAppMount);
+                webResourceSet = new JarResourceSet(webResourceRoot, webAppMount, getResourceFromJarFile(), "/");
             }
             webResourceRoot.addJarResources(webResourceSet);
         }
