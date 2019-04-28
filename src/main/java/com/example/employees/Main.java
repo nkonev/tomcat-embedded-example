@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Optional;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class Main {
     public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
@@ -26,6 +27,8 @@ public class Main {
     public static final String TMPDIR = Optional.ofNullable(System.getenv("TMPDIR")).orElse("/tmp/tomcat-tmp");
 
     public static void main(String[] args) throws Exception {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
 
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir(TMPDIR);
