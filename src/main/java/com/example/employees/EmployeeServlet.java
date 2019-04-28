@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet("/employee")
+@WebServlet(urlPatterns = "/employee", loadOnStartup = 1)
 public class EmployeeServlet extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServlet.class);

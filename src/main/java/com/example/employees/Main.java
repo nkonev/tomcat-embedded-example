@@ -97,6 +97,7 @@ public class Main {
         webResourceRoot.addJarResources(webResourceSet);
         context.setResources(webResourceRoot);
 
+        // need for proper destroying servlets
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
