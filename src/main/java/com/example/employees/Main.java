@@ -71,7 +71,9 @@ public class Main {
         defaultServlet.setLoadOnStartup(1);
         context.addChild(defaultServlet);
         context.addServletMappingDecoded("/", defaultServletName);
-
+        // display index.html on http://127.0.0.1:8080
+        context.addWelcomeFile("index.html");
+        
         // add self jar with static and annotated servlets
         {
             String webAppMount = "/WEB-INF/classes";
