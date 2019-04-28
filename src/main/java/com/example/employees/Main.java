@@ -1,9 +1,6 @@
 package com.example.employees;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.WebResourceRoot;
-import org.apache.catalina.WebResourceSet;
-import org.apache.catalina.Wrapper;
+import org.apache.catalina.*;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
@@ -27,6 +24,7 @@ public class Main {
     public static final String TMPDIR = Optional.ofNullable(System.getenv("TMPDIR")).orElse("/tmp/tomcat-tmp");
 
     public static void main(String[] args) throws Exception {
+        // initialize logback
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
@@ -42,7 +40,15 @@ public class Main {
         new File(STATICDIR).mkdirs();
         String docBase = new File(STATICDIR).getCanonicalPath();
         Context context = tomcat.addWebapp(contextPath, docBase);
-        ((StandardContext)context).setAddWebinfClassesResources(true); // process /META-INF/resources for static
+        context.setAddWebinfClassesResources(true); // process /META-INF/resources for static
+
+        // fix Illegal reflective access by org.apache.catalina.loader.WebappClassLoaderBase
+        // https://github.com/spring-projects/spring-boot/issues/15101#issuecomment-437384942
+        StandardContext standardContext = (StandardContext) context;
+        standardContext.setClearReferencesObjectStreamClassCaches(false);
+        standardContext.setClearReferencesRmiTargets(false);
+        standardContext.setClearReferencesThreadLocals(false);
+
 
         HttpServlet servlet = new HttpServlet() {
             @Override
@@ -78,19 +84,27 @@ public class Main {
         context.addWelcomeFile("index.html");
         
         // add self jar with static and annotated servlets
-        {
-            String webAppMount = "/WEB-INF/classes";
-            WebResourceSet webResourceSet;
-            if (!isJar()) {
-                // potential dangerous - if last argument will "/" that means tomcat will serves self jar with .class files
-                webResourceSet = new DirResourceSet(webResourceRoot, webAppMount, getResourceFromFs(), "/");
-            } else {
-                webResourceSet = new JarResourceSet(webResourceRoot, webAppMount, getResourceFromJarFile(), "/");
-            }
-            webResourceRoot.addJarResources(webResourceSet);
+        String webAppMount = "/WEB-INF/classes";
+        WebResourceSet webResourceSet;
+        if (!isJar()) {
+            // potential dangerous - if last argument will "/" that means tomcat will serves self jar with .class files
+            webResourceSet = new DirResourceSet(webResourceRoot, webAppMount, getResourceFromFs(), "/");
+        } else {
+            webResourceSet = new JarResourceSet(webResourceRoot, webAppMount, getResourceFromJarFile(), "/");
         }
+        webResourceRoot.addJarResources(webResourceSet);
         context.setResources(webResourceRoot);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    tomcat.getServer().stop();
+                } catch (LifecycleException e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
 
         tomcat.start();
         tomcat.getServer().await();
