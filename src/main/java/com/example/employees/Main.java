@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.Optional;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+
 public class Main {
     public static final Integer PORT = Optional.ofNullable(System.getenv("PORT")).map(Integer::parseInt).orElse(8080);
 
@@ -82,8 +83,9 @@ public class Main {
         context.addServletMappingDecoded("/", defaultServletName);
         // display index.html on http://127.0.0.1:8080
         context.addWelcomeFile("index.html");
-        
-        // add self jar with static and annotated servlets
+
+        // add itself jar with static resources (html) and annotated servlets
+
         String webAppMount = "/WEB-INF/classes";
         WebResourceSet webResourceSet;
         if (!isJar()) {
@@ -105,6 +107,7 @@ public class Main {
                 }
             }
         }));
+
 
         tomcat.start();
         tomcat.getServer().await();

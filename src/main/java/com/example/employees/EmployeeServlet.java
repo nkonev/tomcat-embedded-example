@@ -2,7 +2,6 @@ package com.example.employees;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,7 +13,7 @@ import java.io.PrintWriter;
 @WebServlet("/employee")
 public class EmployeeServlet extends HttpServlet {
 
-    private static  final Logger LOGGER = LoggerFactory.getLogger(EmployeeServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmployeeServlet.class);
 
     @Override
     public void init() {
